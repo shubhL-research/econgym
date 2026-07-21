@@ -64,8 +64,13 @@ class Box:
         self.dtype = dtype
 
     def sample(self, rng: np.random.Generator) -> np.ndarray:
-        """Draw uniformly on ``[low, high]`` using the SHARED episode ``rng``."""
-        return rng.uniform(self.low, self.high).astype(self.dtype)
+        """Draw uniformly on ``[low, high]`` using the SHARED episode ``rng``.
+
+        Returns an array of the box's ``shape`` (a 0-d array for a scalar box).
+        ``np.asarray`` is what keeps scalar boxes working: ``rng.uniform`` of two
+        scalars returns a Python ``float``, which has no ``.astype``.
+        """
+        return np.asarray(rng.uniform(self.low, self.high), dtype=self.dtype)
 
     def contains(self, x) -> bool:
         x = np.asarray(x)

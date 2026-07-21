@@ -1,5 +1,9 @@
 # EconGym
 
+[![CI](https://github.com/shubhL-research/econgym/actions/workflows/ci.yml/badge.svg)](https://github.com/shubhL-research/econgym/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+![Python](https://img.shields.io/badge/python-3.9%2B-blue)
+
 **EconGym** is a small, Gymnasium-style **suite of economics reinforcement-learning
 environments** - modular market/game "physics" you can drop learning agents into
 and measure what emerges. Every environment ships with (1) faithful economic
@@ -104,9 +108,10 @@ run the stateless benchmark; the runner is **n-general** (pass `n>2` firms and o
 agent per firm). Query any environment's closed-form benchmark directly:
 
 ```python
-from econgym import CournotEnv
-env = CournotEnv(n=3, a=100.0, b=1.0, c=10.0)
-print(env.equilibrium())   # {'q_i': ..., 'Q': ..., 'P': ..., 'profit_i': ...}
+import econgym
+print(econgym.list_envs())             # ['Bertrand-v0', 'BertrandDiff-v0', 'Cournot-v0', ...]
+env = econgym.make("Cournot-v0", n=3)  # Gym-style registry; kwargs pass through
+print(env.equilibrium())               # {'q_i': ..., 'Q': ..., 'P': ..., 'profit_i': ...}
 ```
 
 ## v0 model (identical to Paper 1)
@@ -174,6 +179,14 @@ will reuse the same `EconEnv` / `Agent` / `run_episode` / `solvers` interface:
   networks).
 - **Search-and-matching** - labor/marketplace search with Diamond–Mortensen–
   Pissarides-style benchmarks.
+
+## Publishing to PyPI
+
+Releases publish automatically via `.github/workflows/publish.yml` using PyPI
+Trusted Publishing (no stored token). One-time setup: create a PyPI account and
+an `econgym` project, add a Trusted Publisher for `shubhL-research/econgym` with
+workflow `publish.yml`, then publish a GitHub Release. Until then, install from
+source with `pip install -e .`.
 
 ## Citation
 

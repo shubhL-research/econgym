@@ -47,6 +47,7 @@ from .solvers import (
     second_price_bne,
     support_enumeration,
 )
+from .registry import list_envs, make
 
 __version__ = "0.2.0"
 
@@ -75,6 +76,8 @@ __all__ = [
     "Agent",
     "run_episode",
     "Result",
+    "make",
+    "list_envs",
     "metrics",
     "BASE",
     "H_STAR",
