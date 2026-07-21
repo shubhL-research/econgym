@@ -1,0 +1,19 @@
+{
+  "_about": "Golden price/profit traces RECORDED from the ORIGINAL Paper-1 simulation.py (the algorithmic-bertrand-rl repository) so the byte-for-byte faithfulness check runs EVERYWHERE with zero external dependency. Q-learning: fresh default_rng(seed). Mean-based: default_rng(seed) advanced by one rng.integers(0,K,size=2) draw (the documented env.reset offset) before run_meanbased.",
+  "K": 21,
+  "T": 3000,
+  "n": 2,
+  "alpha": 0.1,
+  "gamma": 0.95,
+  "epsilon": 0.1,
+  "eps_decay": 0.0003,
+  "c": 1.0,
+  "p_min": 0.0,
+  "p_max": 10.0,
+  "seeds": [
+    0,
+    1,
+    7
+  ],
+  "source_repo": "https://github.com/shubhL-research/algorithmic-bertrand-rl"
+}

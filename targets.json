@@ -1,0 +1,137 @@
+{
+  "_about": "Ground-truth reproduction targets for the EconGym v0 Bertrand environment (package `econgym`). Numbers were produced by RUNNING the ORIGINAL Paper-1 code in the algorithmic-bertrand-rl repository (config.py + simulation.py) via _groundtruth.py. The econgym re-implementation must reproduce these AGGREGATE statistics within the stated tolerances. This is the BINDING acceptance for the reproduce test.",
+  "paper": {
+    "title": "The Two Faces of Algorithmic Collusion: Memory, Spuriousness, and a Model-Free Entropy Diagnostic in Homogeneous-Good Bertrand Competition",
+    "author": "Shubh Lamba",
+    "repo": "https://github.com/shubhL-research/algorithmic-bertrand-rl",
+    "zenodo_doi": "10.5281/zenodo.20788510",
+    "reproduces": "Table 1, K=21 baseline row (Section 5, Results)."
+  },
+
+  "config": {
+    "_note": "Fast (~90s) representative reproduction of the paper's HEADLINE baseline. Uses BASE params from config.py EXCEPT K, which is set to the paper's stated baseline grid K=21 (config.py's BASE dict lists K=7 as the COARSE-grid contrast; paper Section 4: 'I use K=21 as the baseline'). All other params are BASE verbatim.",
+    "n": 2,
+    "K": 21,
+    "T": 30000,
+    "alpha": 0.10,
+    "gamma": 0.95,
+    "epsilon": 0.10,
+    "eps_decay": 3e-4,
+    "c": 1.0,
+    "p_min": 0.0,
+    "p_max": 10.0,
+    "T0": 2000,
+    "seeds": "range(0, 50)  -> seeds 0..49 for EACH learner (independent RNG streams; same seed integers, entirely separate games)",
+    "n_seeds": 50,
+    "H_star": 0.288,
+    "H_star_source": "Paper's published data-derived antimode (Section 4, H*=0.288). FIXED in the reproduce test rather than re-derived per-run: the K=21 collusive-share separation is robust for H* in [0.20, 0.288] (mean 0.92-0.96 vs Q 0.04) and only erodes above ~0.40 as Q's chaotic cluster (H~0.51) leaks in.",
+    "p_star_factor": 2.0
+  },
+
+  "market_benchmarks": {
+    "_note": "Deterministic given the grid; must match exactly.",
+    "nash_profit_per_firm": 0.0,
+    "nash_profit_note": "K=21 grid includes p=1.0=c, so p_comp=c and pi^N=(1-1)/2=0.",
+    "monopoly_profit_per_firm": 4.5,
+    "monopoly_profit_note": "(p_max - c)/n = (10-1)/2 = 4.5"
+  },
+
+  "targets": {
+    "_measured_from": "ORIGINAL code, seeds 0..49, K=21, T=30000 (see _groundtruth.py / _groundtruth_out.json).",
+
+    "collusion_intensity_delta_index": {
+      "_desc": "Mean collusion index Delta over all 50 seeds (unconditional). Delta=(pi_bar - piN)/(piM - piN) over the final T0=2000 periods. On INTENSITY, Q-learning colludes HARDER than mean-based (paper: 'less often but harder').",
+      "q_delta_mean": 0.33318,
+      "q_delta_std": 0.09806,
+      "mean_delta_mean": 0.14354,
+      "mean_delta_std": 0.07459,
+      "diff_mean_minus_q": -0.18964,
+      "tol_delta_mean": 0.05
+    },
+
+    "delta_two_sample_test": {
+      "_desc": "Independent two-sample z of (mean_based_delta - q_delta) across the 50-seed arrays. Strongly NEGATIVE: Q's per-run Delta exceeds mean-based's.",
+      "z_mean_minus_q": -10.884,
+      "welch_df": 91.48,
+      "acceptance": "z_mean_minus_q <= -6.0  (strongly significant, sign negative)"
+    },
+
+    "collusion_frequency_regime_share": {
+      "_desc": "Fraction of runs classified regime=='Collusive' (H_norm < H* AND p_bar >= p_star_factor*c), at H*=0.288. This is the PAPER'S HEADLINE: the stateless mean-based learner colludes MORE OFTEN than the stateful Q-learner. On FREQUENCY, mean-based >> Q.",
+      "mean_collusive_share": 0.96,
+      "q_collusive_share": 0.04,
+      "diff_mean_minus_q": 0.92,
+      "acceptance": "mean_collusive_share >= 0.80  AND  q_collusive_share <= 0.15"
+    },
+
+    "share_two_proportion_test": {
+      "_desc": "Two-proportion z of (mean_collusive_share - q_collusive_share) at H*=0.288 (48/50 vs 2/50). Strongly POSITIVE: mean-based colludes MORE OFTEN, strongly significant. THIS is the 'mean-based colludes more' signature.",
+      "z_mean_minus_q": 9.2,
+      "acceptance": "z_mean_minus_q >= 5.0  (strongly significant, sign positive)"
+    },
+
+    "convergence_fraction": {
+      "_desc": "Fraction of runs with non-circular convergence (greedy policy stable over final 10% for both firms, tol=0.99). Both learners converge at similar rates -> the mean-based advantage in FREQUENCY is NOT a non-convergence artifact.",
+      "q_conv_frac": 0.88,
+      "mean_conv_frac": 0.88,
+      "tol_conv_frac": 0.08
+    },
+
+    "normalised_entropy_per_learner": {
+      "_desc": "Mean K-normalised Shannon entropy (Miller-Madow corrected), averaged over both firms, over the final T0 window, averaged across the 50 seeds. Mean-based collapses to a stable supra-competitive price (LOW entropy); Q-learning stays high-entropy / chaotic at T=30000.",
+      "q_entropy_mean": 0.51433,
+      "mean_entropy_mean": 0.05092,
+      "tol_entropy_mean": 0.06,
+      "acceptance": "mean_entropy_mean <= 0.15  AND  q_entropy_mean >= 0.35"
+    }
+  },
+
+  "acceptance_summary": {
+    "_desc": "The reproduce test (tests/test_reproduce_paper1.py) PASSES iff ALL of the following hold, with econgym re-running the exact config above.",
+    "checks": [
+      "abs(q_delta_mean      - 0.33318) <= 0.05",
+      "abs(mean_delta_mean   - 0.14354) <= 0.05",
+      "delta_z_mean_minus_q  <= -6.0",
+      "abs(q_conv_frac       - 0.88)   <= 0.08",
+      "abs(mean_conv_frac    - 0.88)   <= 0.08",
+      "mean_entropy_mean     <= 0.15",
+      "q_entropy_mean        >= 0.35",
+      "mean_collusive_share  >= 0.80  (regime classifier at H*=0.288, p_star_factor=2.0)",
+      "q_collusive_share     <= 0.15",
+      "share_z_mean_minus_q  >= 5.0",
+      "nash_profit == 0.0  and  monopoly_profit == 4.5  (exact, K=21 grid)"
+    ],
+    "headline_invariants": [
+      "SIGN: mean-based colludes MORE OFTEN (frequency): mean_collusive_share >> q_collusive_share, share z >> 0.",
+      "SIGN: Q-learning colludes HARDER (intensity): q_delta_mean > mean_delta_mean, delta z << 0.",
+      "Both learners converge (~0.88): the frequency gap is not a convergence artifact.",
+      "Entropy separates the two: mean-based low (~0.05, stable price), Q-learning high (~0.51, chaotic)."
+    ]
+  },
+
+  "faithfulness_notes": {
+    "rng": "numpy np.random.default_rng(seed). Q-learning reproduces the original BYTE-FOR-BYTE (identical RNG call order). Mean-based is reproduced at the AGGREGATE level only: the clean BertrandEnv.reset() draws the initial price profile via rng.integers(0,K,size=n) for ALL agent types (faithful to the Q path), whereas the ORIGINAL run_meanbased consumed NO init draw. Measured effect of this single-draw offset on mean-based aggregates: delta 0.0042, entropy 0.0055, conv 0.02 -- comfortably inside tolerances (see _offset_check.py).",
+    "rng_call_order_qlearning": "1) rng.normal(0,1e-6,(K,K)) for agent 0; 2) same for agent 1; 3) rng.integers(0,K,size=n) for initial prices. Then per step, IN AGENT ORDER 0,1: rng.random() (always, for the epsilon test), then rng.integers(K) ONLY if exploring; exploit = np.argmax (deterministic first-max, NO rng tie-break).",
+    "rng_call_order_meanbased": "No init draws in the original (env.reset draw is the one intended offset). Per step, IN AGENT ORDER 0,1: rng.random() (always), then rng.integers(K) if exploring, ELSE _randargmax(value_row, rng) which draws rng.integers(n_ties) ONLY when the greedy max is tied (all-zero value table at t=0 => full tie => a draw). This randomized tie-break MUST be preserved.",
+    "two_faces_warning": "The prompt's phrasing 'mean-based colludes MORE than Q-learning' is TRUE on the FREQUENCY/regime-share metric (its home; z>>0) but the OPPOSITE holds on the raw delta_index INTENSITY metric (Q higher; z<<0). This is not a contradiction -- it is the paper's central 'two faces' result ('the stateless learner colludes more often but weakly; the stateful learner less often but harder'). Both are recorded and both are binding. Do NOT 'fix' the delta z to be positive.",
+    "runtime": "~90s for the full reproduce config (100 runs) with the original tight numpy loops. Budget the econgym reproduce test at <=3 min to absorb Agent-abstraction per-step overhead."
+  },
+
+  "cross_check_K7": {
+    "_desc": "NON-BINDING. K=7 (config.py's true BASE grid, the coarse-grid contrast), seeds 0..49, T=30000. Documents the grid-resolution effect the paper emphasizes: at the coarse grid Q-learning colludes far more often (its competitive best response is easier to over/under-shoot). Recorded for faithfulness documentation only; the reproduce test uses K=21. Collusive shares here use the K=7 pooled data-derived antimode H*=0.2375 (not 0.288).",
+    "nash_profit_per_firm": 0.33333,
+    "monopoly_profit_per_firm": 4.5,
+    "q_delta_mean": 0.39088,
+    "mean_delta_mean": 0.22207,
+    "delta_z_mean_minus_q": -5.129,
+    "q_entropy_mean": 0.30319,
+    "mean_entropy_mean": 0.05650,
+    "q_conv_frac": 0.52,
+    "mean_conv_frac": 0.94,
+    "H_star_data_derived_K7": 0.2375,
+    "q_collusive_share": 0.50,
+    "mean_collusive_share": 0.90,
+    "share_z_mean_minus_q": 4.364,
+    "note": "At K=7 the mean-more-often gap is smaller (mean 0.90 vs Q 0.50) and Q's converged collusion is intense (Delta 0.39) -- a messier signature than K=21, which is why K=21 is the reproduce grid."
+  }
+}

@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=77.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "econgym"
+version = "0.2.0"
+description = "EconGym: a Gymnasium-style suite of economics RL environments with closed-form equilibrium benchmarks. Ships eight environments (Cournot, differentiated Bertrand, first/second-price auctions, public goods, repeated PD, Rubinstein bargaining, plus the faithful v0 homogeneous-good Bertrand collusion reproduction from Paper 1, 'The Two Faces of Algorithmic Collusion')."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Shubh Lamba" }]
+keywords = [
+    "reinforcement-learning",
+    "algorithmic-collusion",
+    "bertrand-competition",
+    "q-learning",
+    "industrial-organization",
+    "gymnasium",
+    "economics",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = ["numpy>=1.17"]
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[project.urls]
+Homepage = "https://github.com/shubhL-research/econgym"
+Repository = "https://github.com/shubhL-research/econgym"
+# The entry below is the PAPER's source repo (the v0 environment reproduces it),
+# not the econgym package repo.
+Paper = "https://github.com/shubhL-research/algorithmic-bertrand-rl"
+Zenodo = "https://doi.org/10.5281/zenodo.20788510"
+
+[tool.setuptools.packages.find]
+include = ["econgym*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
